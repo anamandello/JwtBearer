@@ -1,4 +1,5 @@
 using JwtAspNet;
+using JwtAspNet.Extensions;
 using JwtAspNet.Models;
 using JwtAspNet.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,6 +24,7 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false,
     };
 });
+
 builder.Services.AddAuthorization(x =>
 {
     x.AddPolicy("admin", p => p.RequireRole("admin"));
@@ -35,7 +37,7 @@ app.UseAuthorization();
 app.MapGet("/login", (TokenService service) => service.Create(
     new User
     (1,
-    "Ana Flávia",
+    "Ana Flï¿½via",
     "anaflavia@email.com",
     "https://github.com/anamandello/image",
     "12345",
@@ -44,14 +46,14 @@ app.MapGet("/login", (TokenService service) => service.Create(
 
 app.MapGet("/restrito", (ClaimsPrincipal user) => new
     {
-        id = user.Claims.FirstOrDefault(x => x.Type == "id").ToString(),
-        name = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).ToString(),
-        email = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email).ToString(),
-        givenName = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName).ToString(),
-        image = user.Claims.FirstOrDefault(x => x.Type == "image").ToString(),
-
-}
+        id = user.Id(),
+        name = user.Name(),
+        email = user.Email(),
+        givenName = user.GivenName(),
+        image = user.Image(),
+    }
 ).RequireAuthorization();
+
 app.MapGet("/admin", () => "Acesso autorizado").RequireAuthorization("admin");
 
 app.Run();
